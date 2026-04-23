@@ -1,0 +1,8 @@
+/* Chase Bank Dashboard Styles */
+
+/* Logo styling for favicon/branding */
+.logo {
+  height: 2rem;
+  width: 2rem;
+  object-fit: contain;
+}
