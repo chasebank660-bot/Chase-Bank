@@ -1,146 +1,201 @@
-# @adobe/css-tools
+# word-wrap [![NPM version](https://img.shields.io/npm/v/word-wrap.svg?style=flat)](https://www.npmjs.com/package/word-wrap) [![NPM monthly downloads](https://img.shields.io/npm/dm/word-wrap.svg?style=flat)](https://npmjs.org/package/word-wrap) [![NPM total downloads](https://img.shields.io/npm/dt/word-wrap.svg?style=flat)](https://npmjs.org/package/word-wrap) [![Linux Build Status](https://img.shields.io/travis/jonschlinkert/word-wrap.svg?style=flat&label=Travis)](https://travis-ci.org/jonschlinkert/word-wrap)
 
-> A modern CSS parser and stringifier with TypeScript support
+> Wrap words to a specified length.
 
-[![npm version](https://badge.fury.io/js/%40adobe%2Fcss-tools.svg)](https://badge.fury.io/js/%40adobe%2Fcss-tools)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-Parse CSS into an Abstract Syntax Tree (AST) and convert it back to CSS with configurable formatting. Built with TypeScript for type safety and modern JavaScript features.
+Please consider following this project's author, [Jon Schlinkert](https://github.com/jonschlinkert), and consider starring the project to show your :heart: and support.
 
 ## Install
 
-```bash
-npm install @adobe/css-tools
+Install with [npm](https://www.npmjs.com/):
+
+```sh
+$ npm install --save word-wrap
 ```
 
 ## Usage
 
 ```js
-import { parse, stringify } from '@adobe/css-tools'
+var wrap = require('word-wrap');
 
-// Parse CSS to AST
-const ast = parse('body { font-size: 12px; }')
-
-// Stringify AST back to CSS
-const css = stringify(ast)
-// => "body { font-size: 12px; }"
-
-// Pretty print with custom indentation
-const formatted = stringify(ast, { indent: '  ' })
-// => "body {\n  font-size: 12px;\n}"
-
-// Minify output
-const minified = stringify(ast, { compress: true })
-// => "body{font-size:12px}"
+wrap('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.');
 ```
 
-## API
+Results in:
 
-### `parse(code, options?)`
+```
+  Lorem ipsum dolor sit amet, consectetur adipiscing
+  elit, sed do eiusmod tempor incididunt ut labore
+  et dolore magna aliqua. Ut enim ad minim veniam,
+  quis nostrud exercitation ullamco laboris nisi ut
+  aliquip ex ea commodo consequat.
+```
 
-Parses CSS code and returns an Abstract Syntax Tree (AST).
+## Options
 
-**Parameters:**
-- `code` (string) - The CSS code to parse
-- `options` (object, optional) - Parsing options
-  - `silent` (boolean) - Silently fail on parse errors instead of throwing
-  - `source` (string) - File path for better error reporting
+![image](https://cloud.githubusercontent.com/assets/383994/6543728/7a381c08-c4f6-11e4-8b7d-b6ba197569c9.png)
 
-**Returns:** `CssStylesheetAST` - The parsed CSS as an AST
+### options.width
 
-### `stringify(ast, options?)`
+Type: `Number`
 
-Converts a CSS AST back to CSS string with configurable formatting.
+Default: `50`
 
-**Parameters:**
-- `ast` (CssStylesheetAST) - The CSS AST to stringify
-- `options` (object, optional) - Stringification options
-  - `indent` (string) - Indentation string (default: `'  '`)
-  - `compress` (boolean) - Whether to compress/minify the output (default: `false`)
+The width of the text before wrapping to a new line.
 
-**Returns:** `string` - The formatted CSS string
-
-## Features
-
-- **Complete CSS Support**: All standard CSS features including selectors, properties, values, at-rules, and comments
-- **TypeScript Support**: Full type definitions for all AST nodes and functions
-- **Error Handling**: Configurable error handling with detailed position information
-- **Formatting Options**: Pretty print, minify, or custom formatting
-- **Performance Optimized**: Efficient parsing and stringification for large CSS files
-- **Source Maps**: Track original source positions for debugging and tooling
-
-### Supported CSS Features
-
-- **Selectors**: Element, class, ID, attribute, pseudo-class, pseudo-element selectors
-- **Properties**: All standard CSS properties and custom properties
-- **Values**: Colors, lengths, percentages, functions, calc(), etc.
-- **At-rules**: @media, @keyframes, @import, @charset, @namespace, @font-face, @page, @document, @supports, @container, @layer, @starting-style, @host, @custom-media
-- **Comments**: Both /* */ and // comments
-- **Whitespace**: Preserves formatting information
-- **Vendor prefixes**: Supports vendor-prefixed at-rules and properties
-- **Nested rules**: Media queries, supports, containers, etc.
-- **Complex selectors**: Combinators, pseudo-selectors, attribute selectors
-
-## Examples
-
-### Error Handling
+**Example:**
 
 ```js
-import { parse } from '@adobe/css-tools'
-
-const malformedCss = `
-  body { color: red; }
-  { color: blue; } /* Missing selector */
-  .valid { background: green; }
-`
-
-// Parse with silent error handling
-const result = parse(malformedCss, { silent: true })
-
-// Check for parsing errors
-if (result.stylesheet.parsingErrors) {
-  console.log('Parsing errors:', result.stylesheet.parsingErrors.length)
-  result.stylesheet.parsingErrors.forEach(error => {
-    console.log(`Error at line ${error.line}: ${error.message}`)
-  })
-}
-
-// Valid rules are still parsed
-console.log('Valid rules:', result.stylesheet.rules.length)
+wrap(str, {width: 60});
 ```
 
-### Source Tracking
+### options.indent
+
+Type: `String`
+
+Default: `` (two spaces)
+
+The string to use at the beginning of each line.
+
+**Example:**
 
 ```js
-import { parse } from '@adobe/css-tools'
-
-const css = 'body { color: red; }'
-const ast = parse(css, { source: 'styles.css' })
-
-// Position information is available
-const rule = ast.stylesheet.rules[0]
-console.log(rule.position?.source) // "styles.css"
-console.log(rule.position?.start) // { line: 1, column: 1 }
-console.log(rule.position?.end) // { line: 1, column: 20 }
+wrap(str, {indent: '      '});
 ```
 
-For more examples, see the [Examples documentation](docs/EXAMPLES.md).
+### options.newline
 
-## Performance
+Type: `String`
 
-The library is optimized for performance and can handle large CSS files efficiently. For benchmarking information, see the `benchmark/` directory in the source code.
+Default: `\n`
 
-## Documentation
+The string to use at the end of each line.
 
-- [API Reference](docs/API.md) - Complete API documentation
-- [AST Structure](docs/AST.md) - Detailed AST node types and structure
-- [Examples](docs/EXAMPLES.md) - Comprehensive usage examples
-- [Changelog](docs/CHANGELOG.md) - Version history and changes
+**Example:**
 
-## Background
+```js
+wrap(str, {newline: '\n\n'});
+```
 
-This is a fork of the npm `css` package, maintained by Adobe with modern improvements including TypeScript support, enhanced performance, and security updates. It provides a robust foundation for CSS tooling, preprocessing, and analysis.
+### options.escape
 
-## License
+Type: `function`
 
-[MIT](LICENSE)
+Default: `function(str){return str;}`
+
+An escape function to run on each line after splitting them.
+
+**Example:**
+
+```js
+var xmlescape = require('xml-escape');
+wrap(str, {
+  escape: function(string){
+    return xmlescape(string);
+  }
+});
+```
+
+### options.trim
+
+Type: `Boolean`
+
+Default: `false`
+
+Trim trailing whitespace from the returned string. This option is included since `.trim()` would also strip the leading indentation from the first line.
+
+**Example:**
+
+```js
+wrap(str, {trim: true});
+```
+
+### options.cut
+
+Type: `Boolean`
+
+Default: `false`
+
+Break a word between any two letters when the word is longer than the specified width.
+
+**Example:**
+
+```js
+wrap(str, {cut: true});
+```
+
+## About
+
+<details>
+<summary><strong>Contributing</strong></summary>
+
+Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](../../issues/new).
+
+</details>
+
+<details>
+<summary><strong>Running Tests</strong></summary>
+
+Running and reviewing unit tests is a great way to get familiarized with a library and its API. You can install dependencies and run tests with the following command:
+
+```sh
+$ npm install && npm test
+```
+
+</details>
+
+<details>
+<summary><strong>Building docs</strong></summary>
+
+_(This project's readme.md is generated by [verb](https://github.com/verbose/verb-generate-readme), please don't edit the readme directly. Any changes to the readme must be made in the [.verb.md](.verb.md) readme template.)_
+
+To generate the readme, run the following command:
+
+```sh
+$ npm install -g verbose/verb#dev verb-generate-readme && verb
+```
+
+</details>
+
+### Related projects
+
+You might also be interested in these projects:
+
+* [common-words](https://www.npmjs.com/package/common-words): Updated list (JSON) of the 100 most common words in the English language. Useful for… [more](https://github.com/jonschlinkert/common-words) | [homepage](https://github.com/jonschlinkert/common-words "Updated list (JSON) of the 100 most common words in the English language. Useful for excluding these words from arrays.")
+* [shuffle-words](https://www.npmjs.com/package/shuffle-words): Shuffle the words in a string and optionally the letters in each word using the… [more](https://github.com/jonschlinkert/shuffle-words) | [homepage](https://github.com/jonschlinkert/shuffle-words "Shuffle the words in a string and optionally the letters in each word using the Fisher-Yates algorithm. Useful for creating test fixtures, benchmarking samples, etc.")
+* [unique-words](https://www.npmjs.com/package/unique-words): Returns an array of unique words, or the number of occurrences of each word in… [more](https://github.com/jonschlinkert/unique-words) | [homepage](https://github.com/jonschlinkert/unique-words "Returns an array of unique words, or the number of occurrences of each word in a string or list.")
+* [wordcount](https://www.npmjs.com/package/wordcount): Count the words in a string. Support for english, CJK and Cyrillic. | [homepage](https://github.com/jonschlinkert/wordcount "Count the words in a string. Support for english, CJK and Cyrillic.")
+
+### Contributors
+
+| **Commits** | **Contributor** |  
+| --- | --- |  
+| 47 | [jonschlinkert](https://github.com/jonschlinkert) |  
+| 7  | [OlafConijn](https://github.com/OlafConijn) |  
+| 3  | [doowb](https://github.com/doowb) |  
+| 2  | [aashutoshrathi](https://github.com/aashutoshrathi) |  
+| 2  | [lordvlad](https://github.com/lordvlad) |  
+| 2  | [hildjj](https://github.com/hildjj) |  
+| 1  | [danilosampaio](https://github.com/danilosampaio) |  
+| 1  | [2fd](https://github.com/2fd) |  
+| 1  | [leonard-thieu](https://github.com/leonard-thieu) |  
+| 1  | [mohd-akram](https://github.com/mohd-akram) |  
+| 1  | [toddself](https://github.com/toddself) |  
+| 1  | [wolfgang42](https://github.com/wolfgang42) |  
+| 1  | [zachhale](https://github.com/zachhale) |  
+
+### Author
+
+**Jon Schlinkert**
+
+* [GitHub Profile](https://github.com/jonschlinkert)
+* [Twitter Profile](https://twitter.com/jonschlinkert)
+* [LinkedIn Profile](https://linkedin.com/in/jonschlinkert)
+
+### License
+
+Copyright © 2023, [Jon Schlinkert](https://github.com/jonschlinkert).
+Released under the [MIT License](LICENSE).
+
+***
+
+_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.8.0, on July 22, 2023._
